@@ -10,15 +10,62 @@ public class Paths : MonoBehaviour
     public MovementPath path;
 
     public float radius = 5.0f; //for the circle and figure-eight
-
     public float speed = 0f;
 
+    public bool renderPath = false;
+    public int renderPathResolution = 1000;
+    public float renderPathHeight = 1.0f;
+
     private float timeElapsed = 0.0f;
+    
+    private LineRenderer lineRenderer;
+    private List<Vector3> pathPositions = new List<Vector3>();
 
     // Start is called before the first frame update
     void Start()
     {
          rb = GetComponent<Rigidbody>();
+
+         if (renderPath) {
+            lineRenderer = gameObject.AddComponent<LineRenderer>();
+         
+            lineRenderer.material = new Material(Shader.Find("Standard"));
+            lineRenderer.positionCount = renderPathResolution;
+            lineRenderer.widthMultiplier = 0.1f;  // Adjust the width as necessary
+
+            switch (path) {
+                case MovementPath.Square:
+
+                    break;
+                
+                case MovementPath.Circle:
+                    float stepSize = 2 * Mathf.PI / renderPathResolution;
+                    float curTheta = 0.0f;
+
+                    List<Vector3> pathPositions = new List<Vector3>();
+
+                    while (curTheta < 2 * Mathf.PI) {
+                        Vector3 newPosition = new Vector3(0.0f, 0.0f, 0.0f);
+                        newPosition.x = radius * Mathf.Cos(curTheta);
+                        newPosition.y = renderPathHeight;
+                        newPosition.z = radius * Mathf.Sin(curTheta);
+
+                        pathPositions.Add(newPosition);
+
+                        curTheta += stepSize;
+                    }
+
+                    Debug.Log(pathPositions.ToArray());
+                    
+                    lineRenderer.SetPositions(pathPositions.ToArray());
+
+                    
+
+                    break;
+
+            }
+         }
+         
     }
 
     // Update is called once per frame
@@ -62,5 +109,10 @@ public class Paths : MonoBehaviour
         }
 
         transform.position = newPosition;
+
+        // // Update LineRenderer to trace the path
+        // pathPositions.Add(newPosition);
+        // lineRenderer.positionCount = pathPositions.Count;
+        // lineRenderer.SetPositions(pathPositions.ToArray());
     }
 }
